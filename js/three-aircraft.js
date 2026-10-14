@@ -83,6 +83,10 @@
     }
   ];
 
+  let clock = new THREE.Clock();
+  let telemRoll = null;
+  let telemPitch = null;
+
   init();
   animate();
 
@@ -461,11 +465,13 @@
     window.addEventListener('resize', onResize, false);
     window.addEventListener('load', onResize, false);
 
-    if (window.ResizeObserver && container) {
-      const ro = new ResizeObserver(() => {
-        onResize();
-      });
-      ro.observe(container);
+    if (typeof window !== 'undefined' && window.ResizeObserver && container) {
+      try {
+        const ro = new window.ResizeObserver(() => {
+          onResize();
+        });
+        ro.observe(container);
+      } catch (e) {}
     }
 
     // CAD Wireframe Toggle Button
@@ -507,9 +513,8 @@
     renderer.setSize(width, height);
   }
 
-  let clock = new THREE.Clock();
-  const telemRoll = document.getElementById('telem-roll');
-  const telemPitch = document.getElementById('telem-pitch');
+  telemRoll = document.getElementById('telem-roll');
+  telemPitch = document.getElementById('telem-pitch');
 
   function animate() {
     requestAnimationFrame(animate);
