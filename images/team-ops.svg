@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%" fill="none">
+  <defs>
+    <pattern id="gridPattern5" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1E293B" stroke-width="0.75" stroke-dasharray="2 2"/>
+    </pattern>
+    <linearGradient id="opsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#050811"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="400" fill="url(#opsGrad)"/>
+  <rect width="600" height="400" fill="url(#gridPattern5)"/>
+
+  <!-- Brackets -->
+  <rect x="15" y="15" width="570" height="370" fill="none" stroke="#334155" stroke-width="1"/>
+  <path d="M 15 35 L 15 15 L 35 15" stroke="#00F0FF" stroke-width="2.5" fill="none"/>
+  <path d="M 585 35 L 585 15 L 565 15" stroke="#00F0FF" stroke-width="2.5" fill="none"/>
+  <path d="M 15 365 L 15 385 L 35 385" stroke="#00F0FF" stroke-width="2.5" fill="none"/>
+  <path d="M 585 365 L 585 385 L 565 385" stroke="#00F0FF" stroke-width="2.5" fill="none"/>
+
+  <text x="30" y="38" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#00F0FF" letter-spacing="1.5">
+    GCS OPS // TELEMETRY &amp; FLIGHT CONTROL STATION
+  </text>
+  <text x="570" y="38" font-family="'JetBrains Mono', monospace" font-size="10" fill="#10B981" text-anchor="end">
+    LINK: DUPLEX 915 MHz RFD900X [CONNECTED]
+  </text>
+
+  <!-- Flight Telemetry Display Mockup -->
+  <g transform="translate(40, 60)">
+    <!-- Main PFD (Primary Flight Display) -->
+    <rect x="0" y="0" width="240" height="180" rx="3" fill="#090E17" stroke="#00F0FF" stroke-width="1.5"/>
+    <!-- Artificial horizon line -->
+    <rect x="2" y="2" width="236" height="88" fill="#0284C7" fill-opacity="0.25"/>
+    <rect x="2" y="90" width="236" height="88" fill="#78350F" fill-opacity="0.25"/>
+    <line x1="20" y1="90" x2="220" y2="90" stroke="#FFFFFF" stroke-width="2"/>
+    <!-- Pitch ladder -->
+    <line x1="90" y1="60" x2="150" y2="60" stroke="#00F0FF" stroke-width="1.5"/>
+    <text x="155" y="63" font-family="'JetBrains Mono', monospace" font-size="8" fill="#00F0FF">+10°</text>
+    <line x1="100" y1="75" x2="140" y2="75" stroke="#00F0FF" stroke-width="1"/>
+    <line x1="90" y1="120" x2="150" y2="120" stroke="#00F0FF" stroke-width="1.5"/>
+    <text x="155" y="123" font-family="'JetBrains Mono', monospace" font-size="8" fill="#00F0FF">-10°</text>
+    <!-- Aircraft reticle symbol -->
+    <path d="M 100 90 L 115 90 L 120 95 L 125 90 L 140 90" stroke="#FF5722" stroke-width="3" fill="none"/>
+    <circle cx="120" cy="90" r="2" fill="#FF5722"/>
+
+    <!-- Heading Tape -->
+    <rect x="30" y="8" width="180" height="18" fill="#020617" stroke="#334155" stroke-width="1"/>
+    <text x="120" y="21" font-family="'JetBrains Mono', monospace" font-size="9" fill="#00F0FF" text-anchor="middle" font-weight="700">HDG: 042° [NE]</text>
+
+    <!-- Speed & Altitude tapes -->
+    <rect x="5" y="30" width="30" height="120" fill="#020617" stroke="#334155" stroke-width="1"/>
+    <text x="20" y="94" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#10B981" text-anchor="middle">54KT</text>
+    <rect x="205" y="30" width="30" height="120" fill="#020617" stroke="#334155" stroke-width="1"/>
+    <text x="220" y="94" font-family="'JetBrains Mono', monospace" font-size="10" font-weight="700" fill="#00F0FF" text-anchor="middle">120M</text>
+
+    <!-- Secondary Mission Map / Waypoint Display -->
+    <g transform="translate(260, 0)">
+      <rect x="0" y="0" width="260" height="180" rx="3" fill="#090E17" stroke="#334155" stroke-width="1.5"/>
+      <!-- Radar sweeps -->
+      <circle cx="130" cy="90" r="75" stroke="#1E293B" stroke-width="1" fill="none"/>
+      <circle cx="130" cy="90" r="50" stroke="#1E293B" stroke-width="1" fill="none"/>
+      <circle cx="130" cy="90" r="25" stroke="#1E293B" stroke-width="1" fill="none"/>
+      <!-- Waypoint path -->
+      <polyline points="40,140 90,80 150,110 210,50" stroke="#FF5722" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+      <circle cx="40" cy="140" r="4" fill="#10B981"/>
+      <text x="45" y="152" font-family="'JetBrains Mono', monospace" font-size="8" fill="#10B981">WP-01</text>
+      <circle cx="90" cy="80" r="4" fill="#00F0FF"/>
+      <text x="95" y="78" font-family="'JetBrains Mono', monospace" font-size="8" fill="#00F0FF">WP-02</text>
+      <circle cx="150" cy="110" r="4" fill="#00F0FF"/>
+      <circle cx="210" cy="50" r="4" fill="#FF5722"/>
+      <text x="215" y="48" font-family="'JetBrains Mono', monospace" font-size="8" fill="#FF5722">DROP ZONE</text>
+      <!-- Aircraft current position on map -->
+      <polygon points="120,95 130,75 140,95 130,90" fill="#FF5722" stroke="#FFFFFF" stroke-width="1"/>
+    </g>
+  </g>
+
+  <!-- Ground telemetry status feed lines -->
+  <g transform="translate(40, 260)">
+    <rect width="520" height="105" rx="3" fill="#030712" stroke="#1E293B" stroke-width="1"/>
+    <text x="15" y="24" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#10B981">&gt; RSSI: -68 dBm // SNR: 24 dB // PACKET LOSS: 0.00%</text>
+    <text x="15" y="44" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#00F0FF">&gt; GPS FIX: 3D DGPS (18 SATELLITES LOCKED) // HDOP: 0.72</text>
+    <text x="15" y="64" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#FFFFFF">&gt; BATT: 6S LiPo 22.2V // CURRENT: 18.4A // REMAINING: 78% (14.2 MINS)</text>
+    <text x="15" y="84" font-family="'JetBrains Mono', monospace" font-size="9.5" fill="#FF5722">&gt; AUTOPILOT STATUS: ARDUPLANE 4.4 // MODE: AUTO_MISSION_EXECUTE</text>
+    <text x="15" y="98" font-family="'JetBrains Mono', monospace" font-size="8" fill="#64748B">// BMSCE FLIGHT LAB GROUND STATION TELEMETRY RECORD // ARCHIVE ID: 2026-FLT-88</text>
+  </g>
+</svg>

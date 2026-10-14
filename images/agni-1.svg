@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%" fill="none">
+  <defs>
+    <pattern id="gridPattern4" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1E293B" stroke-width="0.75" stroke-dasharray="2 2"/>
+    </pattern>
+    <linearGradient id="blueprintGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#061A23"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="400" fill="url(#blueprintGrad4)"/>
+  <rect width="600" height="400" fill="url(#gridPattern4)"/>
+
+  <!-- Border & Brackets -->
+  <rect x="15" y="15" width="570" height="370" fill="none" stroke="#334155" stroke-width="1"/>
+  <path d="M 15 35 L 15 15 L 35 15" stroke="#10B981" stroke-width="2.5" fill="none"/>
+  <path d="M 585 35 L 585 15 L 565 15" stroke="#10B981" stroke-width="2.5" fill="none"/>
+  <path d="M 15 365 L 15 385 L 35 385" stroke="#10B981" stroke-width="2.5" fill="none"/>
+  <path d="M 585 365 L 585 385 L 565 385" stroke="#10B981" stroke-width="2.5" fill="none"/>
+
+  <text x="30" y="38" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#10B981" letter-spacing="1.5">
+    AIRFRAME ID: [HGR-04 // AGNI-1]
+  </text>
+  <text x="570" y="38" font-family="'JetBrains Mono', monospace" font-size="10" fill="#94A3B8" text-anchor="end">
+    CLASS: HIGH-ALTITUDE LONG ENDURANCE (HALE) GLIDER
+  </text>
+
+  <!-- Glider Schematic -->
+  <g transform="translate(300, 195)">
+    <!-- Slender High-Aspect Ratio Wing (Span 3.2m) -->
+    <path d="M -260 0 L 260 0 L 255 18 L -255 18 Z" fill="#0A2228" stroke="#10B981" stroke-width="1.8"/>
+    
+    <!-- Polyhedral Dihedral Wingtips -->
+    <line x1="-260" y1="0" x2="-275" y2="-12" stroke="#10B981" stroke-width="2"/>
+    <line x1="260" y1="0" x2="275" y2="-12" stroke="#10B981" stroke-width="2"/>
+
+    <!-- Solar Cell Array Panels on Wing -->
+    <g fill="#0284C7" stroke="#38BDF8" stroke-width="0.5" opacity="0.8">
+      <rect x="-210" y="2" width="40" height="13"/>
+      <rect x="-160" y="2" width="40" height="13"/>
+      <rect x="-110" y="2" width="40" height="13"/>
+      <rect x="-60" y="2" width="40" height="13"/>
+      <rect x="20" y="2" width="40" height="13"/>
+      <rect x="70" y="2" width="40" height="13"/>
+      <rect x="120" y="2" width="40" height="13"/>
+      <rect x="170" y="2" width="40" height="13"/>
+    </g>
+
+    <!-- Slender Fuselage Boom -->
+    <path d="M 0 -85 C 8 -85 7 130 0 135 C -7 130 -8 -85 0 -85 Z" fill="#1E293B" stroke="#E2E8F0" stroke-width="1.5"/>
+
+    <!-- T-Tail Horizontal Stabilizer -->
+    <rect x="-55" y="125" width="110" height="10" rx="2" fill="#0E2F37" stroke="#10B981" stroke-width="1.5"/>
+    <rect x="-2" y="105" width="4" height="28" fill="#FF5722"/>
+
+    <!-- Folding Propeller Nose -->
+    <circle cx="0" cy="-86" r="4" fill="#64748B"/>
+    <path d="M -16 -75 Q 0 -86 16 -75" stroke="#10B981" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- Specs Bottom Overlay -->
+  <g transform="translate(30, 315)">
+    <rect width="540" height="52" rx="3" fill="#050B18" stroke="#1E293B" stroke-width="1"/>
+    <text x="18" y="22" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748B">ASPECT RATIO</text>
+    <text x="18" y="38" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#10B981">18.4 AR</text>
+
+    <text x="120" y="22" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748B">GLIDE RATIO (L/D)</text>
+    <text x="120" y="38" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#00F0FF">24.2 : 1</text>
+
+    <text x="240" y="22" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748B">MIN SINK RATE</text>
+    <text x="240" y="38" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#FFFFFF">0.38 M/S</text>
+
+    <text x="360" y="22" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748B">SERVICE CEILING</text>
+    <text x="360" y="38" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#FF5722">3,200 M AGL</text>
+
+    <text x="475" y="22" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#64748B">POWER AUGMENT</text>
+    <text x="475" y="38" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#0284C7">SunPower 24% PV</text>
+  </g>
+</svg>

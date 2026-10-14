@@ -1,0 +1,325 @@
+/* ==========================================================================
+   AEROBMSCE // MODERN AEROSPACE DESIGN SYSTEM
+   Theme: Vibrant Stratospheric Atmosphere (Luminous White, Deep Royal Cobalt, Aerospace Safety Orange & Gold)
+   Typography: Outfit (Headings & Display) + Plus Jakarta Sans (Body & UI) + JetBrains Mono (Telemetry)
+   NO CAD Grid Lines // Clean, Smooth Aerodynamic Aesthetics
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Classy Luminous Aerospace Palette */
+  --bg-page: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: #FFFFFF;
+  --border-subtle: #E2E8F0;
+  --border-brand: #CBD5E1;
+
+  /* Vibrant Accents */
+  --cobalt-blue: #0A47FF;
+  --cobalt-dark: #002B99;
+  --cobalt-light: #3D70FF;
+  --aero-orange: #FF5722;
+  --aero-orange-hover: #F4511E;
+  --aero-gold: #F59E0B;
+  --hud-cyan: #00B4D8;
+  --emerald-green: #10B981;
+
+  --text-dark: #0F172A;
+  --text-muted: #334155;
+  --text-subtle: #64748B;
+
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-body);
+  background-color: var(--bg-page);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--bg-page);
+  /* Pure Stratospheric Airflow Ambient Gradients - NO GRID LINES */
+  background-image: 
+    radial-gradient(circle at 80% -5%, rgba(10, 71, 255, 0.08) 0%, transparent 55%),
+    radial-gradient(circle at 15% 35%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(0, 180, 216, 0.06) 0%, transparent 50%),
+    linear-gradient(to bottom, #F8FAFC 0%, #F1F5F9 50%, #F8FAFC 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 3D Aircraft Stage */
+#aircraft-stage {
+  box-shadow: 0 20px 45px -10px rgba(10, 71, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+#hero-three-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  outline: none;
+}
+
+/* Hotspot Quick Buttons */
+.hotspot-quick-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 6px;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+}
+.hotspot-quick-btn:hover {
+  background: var(--cobalt-blue);
+  color: #FFFFFF;
+  border-color: var(--cobalt-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 71, 255, 0.25);
+}
+
+/* 3D Interactive Hotspot Markers */
+.aircraft-hotspot {
+  position: absolute;
+  z-index: 25;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.aircraft-hotspot:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.hotspot-beacon {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  background: var(--cobalt-blue);
+  border: 2px solid #FFFFFF;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(10, 71, 255, 0.6);
+}
+.hotspot-beacon::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cobalt-blue);
+  animation: beaconPulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes beaconPulse {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.hotspot-label {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 23, 42, 0.92);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* Typography Classes */
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body, .font-sans {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Modern Aerospace Cards */
+.classy-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.classy-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(10, 71, 255, 0.35);
+  box-shadow: 0 16px 36px -8px rgba(10, 71, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+/* High-Impact Aerospace Action Buttons */
+.btn-vibrant-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--cobalt-blue);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.75rem 1.6rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(10, 71, 255, 0.3);
+  text-decoration: none;
+}
+.btn-vibrant-primary:hover {
+  background: var(--cobalt-dark);
+  box-shadow: 0 8px 26px rgba(10, 71, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-vibrant-orange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--aero-orange);
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.75rem 1.6rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(255, 87, 34, 0.32);
+  text-decoration: none;
+}
+.btn-vibrant-orange:hover {
+  background: var(--aero-orange-hover);
+  box-shadow: 0 8px 26px rgba(255, 87, 34, 0.48);
+  transform: translateY(-1px);
+}
+
+.btn-vibrant-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #FFFFFF;
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.75rem 1.6rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  text-decoration: none;
+}
+.btn-vibrant-secondary:hover {
+  border-color: var(--cobalt-blue);
+  color: var(--cobalt-blue);
+  box-shadow: 0 4px 16px rgba(10, 71, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Partner Logo Cards */
+.partner-logo-box {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 85px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s ease;
+}
+.partner-logo-box:hover {
+  border-color: var(--cobalt-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(10, 71, 255, 0.1);
+}
+.partner-logo-box img {
+  max-height: 48px;
+  max-width: 140px;
+  width: auto;
+  height: auto;
+  object-contain: contain;
+}
+
+/* Lightbox Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-window {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  max-width: 880px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25);
+  transform: scale(0.96);
+  transition: transform 0.25s ease;
+}
+.modal-overlay.open .modal-window {
+  transform: scale(1);
+}
+
+/* Technical Details Modal */
+#part-detail-modal .modal-window {
+  max-width: 580px;
+}
