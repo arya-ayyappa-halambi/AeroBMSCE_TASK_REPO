@@ -74,3 +74,16 @@ cd AeroBMSCE_TASK_REPO
 python3 -m http.server 8080
 ```
 Then visit `http://localhost:8080` in your browser.
+
+---
+
+## 🚀 Deploying to Vercel
+
+The repository includes a ready-to-use [`vercel.json`](file:///Users/aryaayyappahalambi/Desktop/AeroBMSCE_TASK_REPO/vercel.json) configuration for instant zero-config deployment on Vercel:
+
+1. Go to [vercel.com](https://vercel.com) and log in with your GitHub account.
+2. Click **"Add New..."** → **"Project"**.
+3. Import `arya-ayyappa-halambi/AeroBMSCE_TASK_REPO`.
+4. Keep the Framework Preset as **Other** and Root Directory as `./`.
+5. Click **"Deploy"**!
+
