@@ -1,14 +1,17 @@
 /**
- * AeroBMSCE // Interactive 3D Aircraft Visualizer Engine
+ * AeroBMSCE // High-Fidelity 3D Interactive Aircraft Visualizer Engine
  * 
- * High-performance WebGL parametric supersonic delta-wing UAV:
- * - High-contrast Aerospace Livery: Deep Carbon Titanium, Cobalt Blue & Safety Orange
- * - Luminous Cyan HUD Cockpit Canopy with internal instrument glow
- * - Full 360° Mouse & Touch Drag Rotation with physics damping & auto-patrol
- * - Actuated dynamic elevons, pulsing afterburner flame, port/starboard nav lights
- * - Interactive Hotspot focus & smooth 3D camera transitions
- * - Instant CAD Wireframe / Solid composite livery toggle
- * - Live pitch, roll, yaw telemetry readouts
+ * Detailed Parametric Competition UAV (VAYU-01):
+ * - Nose pitot tube & radome
+ * - Transparent cockpit canopy with visible internal Pixhawk avionics & HUD glow
+ * - Reflexed camber high-lift delta wing with wingtip fence winglets & vortex strakes
+ * - Actuated elevons with servo pushrods
+ * - Rapidly spinning rear carbon propeller & brushless outrunner motor
+ * - FPV cloverleaf & 915MHz telemetry antennas
+ * - Carbon fiber belly landing skids
+ * - 360° mouse / touch drag rotation with inertia & wheel zoom
+ * - Interactive in-stage pop-up card on touch/click with technical specs
+ * - CAD Wireframe toggle & live pitch/roll telemetry
  */
 
 (function () {
@@ -30,62 +33,95 @@
     container.innerHTML = `
       <div class="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-slate-100 rounded-xl">
         <img src="./images/cad-plane.png" alt="AeroBMSCE Aircraft CAD" class="max-h-64 object-contain mb-4">
-        <p class="font-sans text-xs text-slate-600 font-semibold">3D Hardware Acceleration required for real-time WebGL inspection.</p>
+        <p class="font-sans text-xs text-slate-600 font-semibold">WebGL hardware acceleration required for 3D flight engine.</p>
       </div>
     `;
     return;
   }
 
-  // Scene globals
+  // Scene & System Globals
   let scene, camera, renderer, aircraftGroup;
   let solidGroup, wireframeGroup;
   let leftElevonMesh, rightElevonMesh, leftElevonWire, rightElevonWire;
-  let afterburnerFlame, navLightRed, navLightGreen, strobeWhite;
+  let leftPushrod, rightPushrod;
+  let propellerGroup;
+  let navLightRed, navLightGreen, strobeWhite;
   let isWireframeActive = false;
 
-  // Camera & Transform targets
-  let targetRot = { x: 0.25, y: -0.65, z: 0.0 };
-  let currentRot = { x: 0.25, y: -0.65, z: 0.0 };
-  let targetCamPos = { x: 0, y: 0.2, z: 5.4 };
-  let currentCamPos = { x: 0, y: 0.2, z: 5.4 };
+  // Clock & Telemetry Globals
+  let clock = new THREE.Clock();
+  let telemRoll = null;
+  let telemPitch = null;
 
-  // Free Drag Rotation state
+  // Camera & Transform Targets (Scaled & positioned so the ENTIRE plane fits with breathing room!)
+  const DEFAULT_CAM = { x: 0, y: 0.35, z: 7.2 };
+  const DEFAULT_ROT = { x: 0.28, y: -0.65, z: 0.0 };
+  let targetRot = { ...DEFAULT_ROT };
+  let currentRot = { ...DEFAULT_ROT };
+  let targetCamPos = { ...DEFAULT_CAM };
+  let currentCamPos = { ...DEFAULT_CAM };
+
+  // Free Drag Rotation State
   let isDragging = false;
   let previousMousePos = { x: 0, y: 0 };
   let autoOrbit = true;
   let autoOrbitTimer = null;
 
-  // Component focus positions
+  // Component Technical Specifications & Focus Presets
   const PART_PRESETS = [
     {
       name: 'Pixhawk 6X Autonomous Avionics',
-      desc: 'Dual Here3+ RTK GNSS, pitot-static dynamic pressure tube, and companion computer running ROS & Edge-AI vision for precision target drop & autonomous waypoint navigation.',
-      cam: { x: 0, y: 0.4, z: 3.2 },
-      rot: { x: 0.15, y: 0.0, z: 0.0 }
+      badge: 'FLIGHT CONTROL & NAVIGATION',
+      desc: 'Dual Here3+ RTK GNSS, pitot-static dynamic pressure airspeed sensor, triple redundant IMUs, and companion companion computer running ROS 2 with Edge-AI computer vision for autonomous waypoint missions.',
+      specs: [
+        { label: 'Processor', val: 'STM32H753 480MHz' },
+        { label: 'GNSS Accuracy', val: 'Dual RTK (<2cm)' },
+        { label: 'Telemetry', val: '915MHz Microhard Link' },
+        { label: 'Firmware', val: 'PX4 Pro / ArduPilot' }
+      ],
+      cam: { x: 0, y: 1.1, z: 4.8 },
+      rot: { x: 0.35, y: 0.0, z: 0.0 }
     },
     {
-      name: 'High-Lift Delta Wings & Dual Elevons',
-      desc: 'Reflexed camber Selig 1223 airfoil section with active actuated carbon elevons delivering 420°/sec roll rate and maximum aerodynamic lift during high-G turns.',
-      cam: { x: -0.8, y: 0.5, z: 3.4 },
-      rot: { x: 0.35, y: -0.7, z: -0.15 }
+      name: 'High-Lift Delta Wings & Actuated Elevons',
+      badge: 'AERODYNAMICS & CONTROL SURFACES',
+      desc: 'Selig 1223 reflexed camber delta airfoil section optimized for maximum coefficient of lift (Cl_max = 2.1) during high payload cargo flights with independent carbon fiber elevons and wingtip fence winglets.',
+      specs: [
+        { label: 'Airfoil Section', val: 'Selig S1223 Reflexed' },
+        { label: 'Roll Rate', val: '420° / sec' },
+        { label: 'Control Servos', val: 'Titanium-Gear Digital' },
+        { label: 'Wingtips', val: 'Anti-Vortex Fence' }
+      ],
+      cam: { x: -1.4, y: 1.0, z: 5.2 },
+      rot: { x: 0.45, y: -0.75, z: -0.15 }
     },
     {
-      name: 'High-Efficiency Brushless Motor & ESC',
-      desc: 'Sunnysky 4120 400KV pusher motor with custom aluminum heat-sink ESC, carbon fiber propeller, and 6S 70C LiPo battery delivering 4.2kg static thrust.',
-      cam: { x: 0.6, y: 0.3, z: 3.2 },
-      rot: { x: 0.1, y: 2.8, z: 0.0 }
+      name: 'Brushless Propulsion & Pusher Propeller',
+      badge: 'PROPULSION & POWER SYSTEM',
+      desc: 'Sunnysky 4120 400KV outrunner brushless motor paired with a 14x7 carbon fiber pusher propeller and an 80A telemetry ESC, generating 4.2 kg static thrust with rapid throttle response.',
+      specs: [
+        { label: 'Motor KV', val: 'Sunnysky 4120 400KV' },
+        { label: 'Static Thrust', val: '4.2 kg @ 22.2V' },
+        { label: 'Propeller', val: '14x7 Carbon Pusher' },
+        { label: 'Battery Pack', val: '6S 70C 5200mAh LiPo' }
+      ],
+      cam: { x: 0.8, y: 0.8, z: 5.0 },
+      rot: { x: 0.2, y: 2.75, z: 0.0 }
     },
     {
       name: '3K Carbon-Fiber Monocoque Airframe',
-      desc: 'Vacuum-bagged prepreg carbon fiber chassis with internal balsa ribs and modular payload bay tested to +9G acceleration load factor.',
-      cam: { x: 0, y: 0.6, z: 3.8 },
-      rot: { x: 0.45, y: 0.5, z: 0.1 }
+      badge: 'STRUCTURAL FABRICATION',
+      desc: 'Vacuum-bagged prepreg carbon fiber chassis with internal CNC-cut balsa formers and modular payload bay engineered to withstand +9G acceleration maneuvers.',
+      specs: [
+        { label: 'Material', val: '3K 200gsm Twill Carbon' },
+        { label: 'Load Limit', val: '+9.0 G / -4.5 G' },
+        { label: 'MTOW', val: '10.2 kg Max Weight' },
+        { label: 'Payload Bay', val: 'Modular Quick-Release' }
+      ],
+      cam: { x: 0, y: 1.4, z: 5.5 },
+      rot: { x: 0.6, y: 0.5, z: 0.1 }
     }
   ];
-
-  let clock = new THREE.Clock();
-  let telemRoll = null;
-  let telemPitch = null;
 
   init();
   animate();
@@ -94,13 +130,13 @@
     // 1. Scene
     scene = new THREE.Scene();
 
-    // 2. Camera
+    // 2. Camera (Balanced FOV & perspective so the whole plane is framed)
     const width = container.clientWidth || 600;
     const height = container.clientHeight || 540;
-    camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
     camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
 
-    // 3. Renderer with high dynamic range tone mapping
+    // 3. Renderer with ACES Tone Mapping
     renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
@@ -112,27 +148,25 @@
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // 4. Studio Lighting System (High contrast so it pops brilliantly!)
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.3);
+    // 4. Studio Lighting System
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.4);
     scene.add(ambientLight);
 
-    // Key Sun Light
-    const sunLight = new THREE.DirectionalLight(0xFFFFFF, 2.0);
-    sunLight.position.set(6, 10, 8);
+    const sunLight = new THREE.DirectionalLight(0xFFFFFF, 2.2);
+    sunLight.position.set(6, 12, 8);
     scene.add(sunLight);
 
-    // Cobalt Aerospace Fill Light
     const cobaltLight = new THREE.DirectionalLight(0x0A47FF, 2.2);
     cobaltLight.position.set(-8, -4, -4);
     scene.add(cobaltLight);
 
-    // Safety Orange Rim Light
     const orangeLight = new THREE.DirectionalLight(0xFF5722, 1.8);
     orangeLight.position.set(4, -6, -6);
     scene.add(orangeLight);
 
-    // 5. Aircraft Root Group
+    // 5. Aircraft Root Group (Scaled to 0.85 for elegant fitting!)
     aircraftGroup = new THREE.Group();
+    aircraftGroup.scale.set(0.85, 0.85, 0.85);
     scene.add(aircraftGroup);
 
     solidGroup = new THREE.Group();
@@ -141,15 +175,16 @@
     aircraftGroup.add(wireframeGroup);
     wireframeGroup.visible = false;
 
+    // 6. Build the Complete Detailed Aircraft Model
     buildAircraftModel();
 
-    // 6. Interactive Drag & Touch Controls
+    // 7. Setup Interactive Controls & Event Listeners
     setupEventListeners();
   }
 
   function buildAircraftModel() {
-    // --- HIGH-CONTRAST AEROSPACE MATERIALS ---
-    // 1. Carbon Titanium Fuselage (Dark stealth metallic)
+    // --- HIGH-CONTRAST MATERIALS ---
+    // Carbon Titanium Fuselage
     const carbonTitaniumMat = new THREE.MeshStandardMaterial({
       color: 0x1E293B,
       roughness: 0.28,
@@ -157,7 +192,7 @@
       flatShading: true
     });
 
-    // 2. Pure Composite White Radome & Dorsal Spine
+    // Pure Composite White Radome
     const whiteCompositeMat = new THREE.MeshStandardMaterial({
       color: 0xF8FAFC,
       roughness: 0.2,
@@ -165,7 +200,7 @@
       flatShading: true
     });
 
-    // 3. Royal Cobalt Blue Wing Panels
+    // Royal Cobalt Blue Wings
     const cobaltMat = new THREE.MeshStandardMaterial({
       color: 0x0A47FF,
       roughness: 0.22,
@@ -173,7 +208,7 @@
       flatShading: true
     });
 
-    // 4. Safety Orange Control Surfaces
+    // Aerospace Safety Orange Control Surfaces
     const orangeMat = new THREE.MeshStandardMaterial({
       color: 0xFF5722,
       roughness: 0.25,
@@ -181,23 +216,46 @@
       flatShading: true
     });
 
-    // 5. Radiant HUD Cyan Cockpit Glass
+    // Polished Silver Metallic for Hardware & Pushrods
+    const silverMat = new THREE.MeshStandardMaterial({
+      color: 0xE2E8F0,
+      roughness: 0.15,
+      metalness: 0.9
+    });
+
+    // Anodized Gold Motor Bell
+    const goldMat = new THREE.MeshStandardMaterial({
+      color: 0xF59E0B,
+      roughness: 0.2,
+      metalness: 0.85
+    });
+
+    // Matte Black Carbon for Propeller Blades & Skids
+    const carbonBlackMat = new THREE.MeshStandardMaterial({
+      color: 0x0F172A,
+      roughness: 0.35,
+      metalness: 0.5
+    });
+
+    // Radiant HUD Cyan Cockpit Glass
     const canopyMat = new THREE.MeshStandardMaterial({
       color: 0x00F0FF,
       roughness: 0.1,
       metalness: 0.2,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.82,
       flatShading: true
     });
 
-    // 6. Glowing Technical CAD Line Materials
+    // Glowing CAD Lines
     const lineCobalt = new THREE.LineBasicMaterial({ color: 0x0A47FF, linewidth: 2 });
     const lineOrange = new THREE.LineBasicMaterial({ color: 0xFF5722, linewidth: 2 });
     const lineCyan = new THREE.LineBasicMaterial({ color: 0x00F0FF, linewidth: 2 });
 
-    // --- A. Fuselage (Aerodynamic Chined Body) ---
-    const fuselageGeom = new THREE.ConeGeometry(0.48, 4.2, 7);
+    // =========================================================================
+    // 1. FUSELAGE & NOSE RADOME
+    // =========================================================================
+    const fuselageGeom = new THREE.ConeGeometry(0.48, 4.0, 8);
     fuselageGeom.rotateX(Math.PI / 2);
     fuselageGeom.scale(1.0, 0.45, 1.0);
 
@@ -209,21 +267,31 @@
     fuselageWire.position.z = -0.2;
     wireframeGroup.add(fuselageWire);
 
-    // Dorsal Racing Stripe & Radome (White & Cobalt)
-    const radomeGeom = new THREE.ConeGeometry(0.3, 1.2, 7);
+    // Nose Cone Radome (Pure White)
+    const radomeGeom = new THREE.ConeGeometry(0.3, 1.15, 8);
     radomeGeom.rotateX(Math.PI / 2);
     radomeGeom.scale(1.0, 0.45, 1.0);
     const radomeSolid = new THREE.Mesh(radomeGeom, whiteCompositeMat);
     radomeSolid.position.z = 1.35;
     solidGroup.add(radomeSolid);
 
-    const spineGeom = new THREE.BoxGeometry(0.14, 0.08, 2.6);
+    // Pitot-Static Airspeed Probe (Silver needle at nose apex)
+    const pitotGeom = new THREE.CylinderGeometry(0.012, 0.012, 0.55, 6);
+    pitotGeom.rotateX(Math.PI / 2);
+    const pitotMesh = new THREE.Mesh(pitotGeom, silverMat);
+    pitotMesh.position.set(0, 0.02, 2.2);
+    solidGroup.add(pitotMesh);
+
+    // Dorsal Spine (Cobalt Racing Stripe)
+    const spineGeom = new THREE.BoxGeometry(0.14, 0.08, 2.5);
     const spineMesh = new THREE.Mesh(spineGeom, cobaltMat);
     spineMesh.position.set(0, 0.16, -0.2);
     solidGroup.add(spineMesh);
 
-    // --- B. Cockpit Canopy with Inner HUD Glow ---
-    const canopyGeom = new THREE.ConeGeometry(0.24, 1.5, 4);
+    // =========================================================================
+    // 2. COCKPIT CANOPY & INTERNAL AVIONICS
+    // =========================================================================
+    const canopyGeom = new THREE.ConeGeometry(0.24, 1.45, 4);
     canopyGeom.rotateX(Math.PI / 2);
     canopyGeom.scale(0.85, 0.45, 1.0);
 
@@ -235,20 +303,30 @@
     canopyWire.position.set(0, 0.22, 0.5);
     wireframeGroup.add(canopyWire);
 
-    const hudLight = new THREE.PointLight(0x00F0FF, 1.5, 2.0);
-    hudLight.position.set(0, 0.2, 0.5);
+    // Internal Pixhawk Cube (Visible inside tinted glass)
+    const pixhawkGeom = new THREE.BoxGeometry(0.12, 0.08, 0.15);
+    const pixhawkMat = new THREE.MeshStandardMaterial({ color: 0x0F172A, roughness: 0.2 });
+    const pixhawkMesh = new THREE.Mesh(pixhawkGeom, pixhawkMat);
+    pixhawkMesh.position.set(0, 0.15, 0.45);
+    solidGroup.add(pixhawkMesh);
+
+    // Internal HUD Pilot Light Glow
+    const hudLight = new THREE.PointLight(0x00F0FF, 1.6, 2.0);
+    hudLight.position.set(0, 0.22, 0.5);
     solidGroup.add(hudLight);
 
-    // --- C. Main Swept Delta Wing ---
+    // =========================================================================
+    // 3. HIGH-LIFT SWEPT DELTA WINGS WITH WINGTIPS
+    // =========================================================================
     const wingShape = new THREE.Shape();
-    wingShape.moveTo(0, 1.2);        // Nose apex
-    wingShape.lineTo(2.45, -0.85);   // Starboard wingtip
-    wingShape.lineTo(2.4, -1.05);    // Wingtip trailing
+    wingShape.moveTo(0, 1.15);       // Nose blend apex
+    wingShape.lineTo(2.4, -0.85);    // Starboard wingtip leading edge
+    wingShape.lineTo(2.35, -1.05);   // Starboard trailing edge
     wingShape.lineTo(0.55, -1.0);    // Inboard elevon cut
-    wingShape.lineTo(0, -1.1);       // Center root
-    wingShape.lineTo(-0.55, -1.0);
-    wingShape.lineTo(-2.4, -1.05);
-    wingShape.lineTo(-2.45, -0.85);  // Port wingtip
+    wingShape.lineTo(0, -1.1);       // Center trailing root
+    wingShape.lineTo(-0.55, -1.0);   // Inboard elevon cut port
+    wingShape.lineTo(-2.35, -1.05);
+    wingShape.lineTo(-2.4, -0.85);   // Port wingtip leading edge
     wingShape.closePath();
 
     const wingGeom = new THREE.ExtrudeGeometry(wingShape, {
@@ -267,20 +345,37 @@
     const wingWire = new THREE.LineSegments(new THREE.WireframeGeometry(wingGeom), lineCobalt);
     wireframeGroup.add(wingWire);
 
-    // Wing Leading Edge Strake Accents (Carbon Titanium)
+    // Wingtip Fence Winglets (Vertical fins at both wingtips in safety orange!)
     [-1, 1].forEach((dir) => {
-      const strakeGeom = new THREE.BoxGeometry(0.12, 0.07, 2.5);
+      const wingletShape = new THREE.Shape();
+      wingletShape.moveTo(0, 0);
+      wingletShape.lineTo(0.2, 0.35);
+      wingletShape.lineTo(0.05, 0.35);
+      wingletShape.lineTo(-0.25, 0);
+      wingletShape.closePath();
+
+      const wingletGeom = new THREE.ExtrudeGeometry(wingletShape, { depth: 0.02, bevelEnabled: false });
+      const wingletMesh = new THREE.Mesh(wingletGeom, orangeMat);
+      wingletMesh.position.set(dir * 2.38, 0.02, -0.95);
+      solidGroup.add(wingletMesh);
+    });
+
+    // Wing Leading Edge Vortex Strakes (Carbon Titanium)
+    [-1, 1].forEach((dir) => {
+      const strakeGeom = new THREE.BoxGeometry(0.12, 0.07, 2.4);
       strakeGeom.rotateY(dir * 0.45);
       const strakeMesh = new THREE.Mesh(strakeGeom, carbonTitaniumMat);
-      strakeMesh.position.set(dir * 1.22, 0.02, 0.05);
+      strakeMesh.position.set(dir * 1.2, 0.02, 0.05);
       solidGroup.add(strakeMesh);
     });
 
-    // --- D. Actuated Elevons (Safety Orange) ---
+    // =========================================================================
+    // 4. ACTUATED ELEVONS & MECHANICAL PUSHROD LINKAGES
+    // =========================================================================
     const elevonShape = new THREE.Shape();
     elevonShape.moveTo(0, 0);
-    elevonShape.lineTo(1.75, 0);
-    elevonShape.lineTo(1.7, -0.28);
+    elevonShape.lineTo(1.7, 0);
+    elevonShape.lineTo(1.65, -0.28);
     elevonShape.lineTo(0, -0.25);
     elevonShape.closePath();
 
@@ -310,37 +405,31 @@
     leftElevonWire.rotation.copy(leftElevonMesh.rotation);
     wireframeGroup.add(leftElevonWire);
 
-    // --- E. Forward Canards ---
-    const canardShape = new THREE.Shape();
-    canardShape.moveTo(0, 0.35);
-    canardShape.lineTo(0.75, 0.05);
-    canardShape.lineTo(0.7, -0.15);
-    canardShape.lineTo(0, -0.05);
-    canardShape.lineTo(-0.7, -0.15);
-    canardShape.lineTo(-0.75, 0.05);
-    canardShape.closePath();
+    // Servo Pushrods (Silver linkages connecting wing servo to elevon horn)
+    const pushrodGeom = new THREE.CylinderGeometry(0.012, 0.012, 0.28);
+    pushrodGeom.rotateX(Math.PI / 2);
 
-    const canardGeom = new THREE.ExtrudeGeometry(canardShape, { depth: 0.025, bevelEnabled: false });
-    canardGeom.rotateX(Math.PI / 2);
-    canardGeom.translate(0, 0.05, 0.9);
+    rightPushrod = new THREE.Mesh(pushrodGeom, silverMat);
+    rightPushrod.position.set(1.4, 0.05, -0.98);
+    solidGroup.add(rightPushrod);
 
-    const canardSolid = new THREE.Mesh(canardGeom, orangeMat);
-    solidGroup.add(canardSolid);
+    leftPushrod = new THREE.Mesh(pushrodGeom, silverMat);
+    leftPushrod.position.set(-1.4, 0.05, -0.98);
+    solidGroup.add(leftPushrod);
 
-    const canardWire = new THREE.LineSegments(new THREE.WireframeGeometry(canardGeom), lineOrange);
-    wireframeGroup.add(canardWire);
-
-    // --- F. Twin Canted Tail Fins ---
+    // =========================================================================
+    // 5. TWIN CANTED TAIL FINS
+    // =========================================================================
     const finShape = new THREE.Shape();
     finShape.moveTo(0, 0);
-    finShape.lineTo(0.35, 0.72);
-    finShape.lineTo(0.1, 0.72);
+    finShape.lineTo(0.32, 0.72);
+    finShape.lineTo(0.08, 0.72);
     finShape.lineTo(-0.24, 0);
     finShape.closePath();
 
     const finGeom = new THREE.ExtrudeGeometry(finShape, { depth: 0.035, bevelEnabled: false });
 
-    // Left Fin
+    // Left Fin (Canted)
     const leftFin = new THREE.Mesh(finGeom, carbonTitaniumMat);
     leftFin.position.set(-0.48, 0.05, -1.05);
     leftFin.rotation.z = 0.28;
@@ -351,7 +440,7 @@
     leftFinWire.rotation.copy(leftFin.rotation);
     wireframeGroup.add(leftFinWire);
 
-    // Right Fin
+    // Right Fin (Canted)
     const rightFin = new THREE.Mesh(finGeom, carbonTitaniumMat);
     rightFin.scale.x = -1;
     rightFin.position.set(0.48, 0.05, -1.05);
@@ -364,38 +453,81 @@
     rightFinWire.rotation.copy(rightFin.rotation);
     wireframeGroup.add(rightFinWire);
 
-    // --- G. Navigation Lights ---
+    // =========================================================================
+    // 6. BRUSHLESS OUTRUNNER MOTOR & RAPIDLY SPINNING PROPELLER
+    // =========================================================================
+    // Motor Mount Standoff
+    const mountGeom = new THREE.CylinderGeometry(0.18, 0.22, 0.25, 10);
+    mountGeom.rotateX(Math.PI / 2);
+    const mountMesh = new THREE.Mesh(mountGeom, carbonTitaniumMat);
+    mountMesh.position.set(0, 0.02, -1.82);
+    solidGroup.add(mountMesh);
+
+    // Anodized Gold Outrunner Motor Bell
+    const motorGeom = new THREE.CylinderGeometry(0.16, 0.16, 0.22, 12);
+    motorGeom.rotateX(Math.PI / 2);
+    const motorMesh = new THREE.Mesh(motorGeom, goldMat);
+    motorMesh.position.set(0, 0.02, -2.0);
+    solidGroup.add(motorMesh);
+
+    // Rotating Propeller Subgroup
+    propellerGroup = new THREE.Group();
+    propellerGroup.position.set(0, 0.02, -2.14);
+    aircraftGroup.add(propellerGroup);
+
+    // Propeller Hub (Silver Spinner)
+    const hubGeom = new THREE.ConeGeometry(0.08, 0.22, 8);
+    hubGeom.rotateX(-Math.PI / 2);
+    const hubMesh = new THREE.Mesh(hubGeom, silverMat);
+    propellerGroup.add(hubMesh);
+
+    // Propeller Blades (2 Carbon Fiber Twisted Aerodynamic Blades)
+    [-1, 1].forEach((dir) => {
+      const bladeGeom = new THREE.BoxGeometry(0.08, 0.95, 0.02);
+      bladeGeom.rotateZ(dir * 0.15); // Pitch angle
+      const bladeMesh = new THREE.Mesh(bladeGeom, carbonBlackMat);
+      bladeMesh.position.set(0, dir * 0.52, 0.02);
+      propellerGroup.add(bladeMesh);
+    });
+
+    // =========================================================================
+    // 7. BELLY LANDING SKIDS & ANTENNAS
+    // =========================================================================
+    // Belly Landing Skids (Carbon)
+    [-0.32, 0.32].forEach((xPos) => {
+      const skidGeom = new THREE.BoxGeometry(0.04, 0.12, 1.8);
+      const skidMesh = new THREE.Mesh(skidGeom, carbonBlackMat);
+      skidMesh.position.set(xPos, -0.22, -0.1);
+      solidGroup.add(skidMesh);
+    });
+
+    // 5.8GHz FPV Mushroom Antenna (Dorsal Spine)
+    const antPoleGeom = new THREE.CylinderGeometry(0.015, 0.015, 0.22);
+    const antPole = new THREE.Mesh(antPoleGeom, silverMat);
+    antPole.position.set(0, 0.26, -0.6);
+    solidGroup.add(antPole);
+
+    const antDomeGeom = new THREE.SphereGeometry(0.065, 8, 8);
+    const antDome = new THREE.Mesh(antDomeGeom, orangeMat);
+    antDome.position.set(0, 0.38, -0.6);
+    solidGroup.add(antDome);
+
+    // =========================================================================
+    // 8. NAVIGATION LIGHTS
+    // =========================================================================
     const navGeom = new THREE.SphereGeometry(0.045, 8, 8);
 
     navLightRed = new THREE.Mesh(navGeom, new THREE.MeshBasicMaterial({ color: 0xFF2200 }));
-    navLightRed.position.set(-2.44, 0.02, -0.95);
+    navLightRed.position.set(-2.4, 0.02, -0.95);
     aircraftGroup.add(navLightRed);
 
     navLightGreen = new THREE.Mesh(navGeom, new THREE.MeshBasicMaterial({ color: 0x00FF66 }));
-    navLightGreen.position.set(2.44, 0.02, -0.95);
+    navLightGreen.position.set(2.4, 0.02, -0.95);
     aircraftGroup.add(navLightGreen);
 
     strobeWhite = new THREE.Mesh(navGeom, new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
     strobeWhite.position.set(0, 0.28, -1.05);
     aircraftGroup.add(strobeWhite);
-
-    // --- H. Afterburner & Pusher Prop Nozzle ---
-    const nozzleGeom = new THREE.CylinderGeometry(0.2, 0.25, 0.38, 12);
-    nozzleGeom.rotateX(Math.PI / 2);
-    const nozzleMesh = new THREE.Mesh(nozzleGeom, carbonTitaniumMat);
-    nozzleMesh.position.set(0, 0.02, -1.85);
-    solidGroup.add(nozzleMesh);
-
-    const flameGeom = new THREE.ConeGeometry(0.18, 1.1, 8);
-    flameGeom.rotateX(-Math.PI / 2);
-    afterburnerFlame = new THREE.Mesh(flameGeom, new THREE.MeshBasicMaterial({
-      color: 0xFF5722,
-      transparent: true,
-      opacity: 0.85,
-      wireframe: true
-    }));
-    afterburnerFlame.position.set(0, 0.02, -2.45);
-    aircraftGroup.add(afterburnerFlame);
   }
 
   function setupEventListeners() {
@@ -423,11 +555,11 @@
     window.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false;
-        autoOrbitTimer = setTimeout(() => { autoOrbit = true; }, 3500);
+        autoOrbitTimer = setTimeout(() => { autoOrbit = true; }, 4000);
       }
     });
 
-    // Touch Support
+    // Touch Support (for mobile/tablet touch)
     canvas.addEventListener('touchstart', (e) => {
       if (e.touches.length > 0) {
         isDragging = true;
@@ -451,14 +583,14 @@
     window.addEventListener('touchend', () => {
       if (isDragging) {
         isDragging = false;
-        autoOrbitTimer = setTimeout(() => { autoOrbit = true; }, 3500);
+        autoOrbitTimer = setTimeout(() => { autoOrbit = true; }, 4000);
       }
     }, { passive: true });
 
     // Mouse Wheel Zoom
     canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
-      targetCamPos.z = Math.min(Math.max(targetCamPos.z + e.deltaY * 0.005, 2.4), 8.0);
+      targetCamPos.z = Math.min(Math.max(targetCamPos.z + e.deltaY * 0.006, 3.2), 10.5);
     }, { passive: false });
 
     // Window Resize & Container ResizeObserver
@@ -492,13 +624,18 @@
     const resetBtn = document.getElementById('btn-reset-orientation');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        targetRot = { x: 0.25, y: -0.65, z: 0.0 };
-        targetCamPos = { x: 0, y: 0.2, z: 5.4 };
-        autoOrbit = true;
+        resetView();
       });
     }
 
-    // Trigger initial layout calculation
+    // Close In-Stage Pop-Up Button
+    const closePopupBtn = document.getElementById('close-stage-popup');
+    if (closePopupBtn) {
+      closePopupBtn.addEventListener('click', () => {
+        closeStagePopup();
+      });
+    }
+
     setTimeout(onResize, 50);
     setTimeout(onResize, 300);
   }
@@ -513,23 +650,26 @@
     renderer.setSize(width, height);
   }
 
-  telemRoll = document.getElementById('telem-roll');
-  telemPitch = document.getElementById('telem-pitch');
-
+  // Animation Loop
   function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
 
+    // Rapidly Spin Propeller at ~3200 RPM equivalent
+    if (propellerGroup) {
+      propellerGroup.rotation.z += delta * 28.0;
+    }
+
     // Gentle Auto Orbit / Patrol when not manually dragged
     if (autoOrbit && !isDragging) {
-      targetRot.y += delta * 0.25;
-      targetRot.x = Math.sin(time * 0.8) * 0.12 + 0.22;
+      targetRot.y += delta * 0.22;
+      targetRot.x = Math.sin(time * 0.8) * 0.1 + 0.26;
       targetRot.z = Math.cos(time * 0.8) * 0.08;
     }
 
-    // Exponential Lerp for Camera and Rotation
+    // Smooth Exponential Lerp
     const lerpSpeed = 0.06;
     currentRot.x += (targetRot.x - currentRot.x) * lerpSpeed;
     currentRot.y += (targetRot.y - currentRot.y) * lerpSpeed;
@@ -540,10 +680,10 @@
     currentCamPos.z += (targetCamPos.z - currentCamPos.z) * lerpSpeed;
 
     camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(0, 0.1, 0);
 
     // Hover Turbulence
-    const hoverY = Math.sin(time * 2.2) * 0.04;
+    const hoverY = Math.sin(time * 2.2) * 0.035;
     aircraftGroup.position.set(0, hoverY, 0);
     aircraftGroup.rotation.set(currentRot.x, currentRot.y, currentRot.z);
 
@@ -559,18 +699,12 @@
       if (rightElevonWire) rightElevonWire.rotation.x = rightElevonMesh.rotation.x;
     }
 
-    // Afterburner Thrust Pulse
-    if (afterburnerFlame) {
-      const pulse = 1.0 + Math.sin(time * 16) * 0.18;
-      afterburnerFlame.scale.set(pulse, pulse, pulse * 1.2);
-    }
-
     // Strobe navigation light
     if (strobeWhite) {
       strobeWhite.visible = Math.sin(time * 10) > 0.85;
     }
 
-    // Update Telemetry Readout
+    // Telemetry updates
     if (telemPitch && telemRoll) {
       const pitchDeg = (currentRot.x * (180 / Math.PI)).toFixed(1);
       const rollDeg = (currentRot.z * (180 / Math.PI)).toFixed(1);
@@ -581,7 +715,7 @@
     renderer.render(scene, camera);
   }
 
-  // Component Focus function exposed globally
+  // Focus on Part: Moves Camera AND Shows In-Stage Pop-Up Card
   function focusOnPart(partIndex) {
     if (partIndex < 0 || partIndex >= PART_PRESETS.length) return;
     const part = PART_PRESETS[partIndex];
@@ -590,26 +724,51 @@
     targetRot = { x: part.rot.x, y: part.rot.y, z: part.rot.z };
     autoOrbit = false;
 
-    // Show Part Modal
-    const modalTitle = document.getElementById('part-modal-title');
-    const modalDesc = document.getElementById('part-modal-desc');
-    const modal = document.getElementById('part-detail-modal');
+    // Show In-Stage Pop-Up Card
+    const popup = document.getElementById('part-stage-popup');
+    const popupTitle = document.getElementById('popup-title');
+    const popupBadge = document.getElementById('popup-badge');
+    const popupDesc = document.getElementById('popup-desc');
+    const popupSpecs = document.getElementById('popup-specs');
 
-    if (modalTitle) modalTitle.textContent = part.name;
-    if (modalDesc) modalDesc.textContent = part.desc;
-    if (modal) {
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
+    if (popupTitle) popupTitle.textContent = part.name;
+    if (popupBadge) popupBadge.textContent = part.badge;
+    if (popupDesc) popupDesc.textContent = part.desc;
+
+    if (popupSpecs) {
+      popupSpecs.innerHTML = part.specs.map(s => `
+        <div class="p-1.5 rounded bg-slate-50 border border-slate-100">
+          <span class="text-slate-400 block text-[9px] uppercase font-bold">${s.label}</span>
+          <span class="text-slate-900 font-extrabold block truncate">${s.val}</span>
+        </div>
+      `).join('');
+    }
+
+    if (popup) {
+      popup.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+      popup.classList.add('opacity-100', 'translate-y-0');
     }
   }
 
-  // Export to window
+  function closeStagePopup() {
+    const popup = document.getElementById('part-stage-popup');
+    if (popup) {
+      popup.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+      popup.classList.remove('opacity-100', 'translate-y-0');
+    }
+  }
+
+  function resetView() {
+    targetRot = { ...DEFAULT_ROT };
+    targetCamPos = { ...DEFAULT_CAM };
+    autoOrbit = true;
+    closeStagePopup();
+  }
+
+  // Export globally
   window.AeroBMSCE_Aircraft = {
     focusOnPart: focusOnPart,
-    resetView: () => {
-      targetRot = { x: 0.25, y: -0.65, z: 0.0 };
-      targetCamPos = { x: 0, y: 0.2, z: 5.4 };
-      autoOrbit = true;
-    }
+    closeStagePopup: closeStagePopup,
+    resetView: resetView
   };
 })();

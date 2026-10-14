@@ -225,6 +225,34 @@
               <!-- Three.js Canvas mounts here directly! -->
             </div>
 
+            <!-- Floating In-Stage Interactive Part Inspection Pop-Up Card -->
+            <div id="part-stage-popup" class="absolute inset-x-3 bottom-20 z-30 transition-all duration-300 transform translate-y-3 opacity-0 pointer-events-none">
+              <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-4 shadow-2xl relative pointer-events-auto">
+                <button id="close-stage-popup" class="absolute top-3 right-3 p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors" aria-label="Close Inspection">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="w-2 h-2 rounded-full bg-cobalt animate-ping"></span>
+                  <span id="popup-badge" class="font-sans text-[10px] font-extrabold uppercase tracking-wider text-cobalt">
+                    SYSTEM SPECIFICATION
+                  </span>
+                </div>
+
+                <h4 id="popup-title" class="font-display text-base font-extrabold text-slate-900 leading-tight mb-1">
+                  Pixhawk 6X Autonomous Avionics
+                </h4>
+
+                <p id="popup-desc" class="font-sans text-xs text-slate-600 leading-relaxed mb-3">
+                  Dual RTK GNSS, pitot tube airspeed sensor, and onboard companion computer running ROS 2.
+                </p>
+
+                <div id="popup-specs" class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 font-sans text-[10px]">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+
             <!-- Floating 3D Telemetry and Hotspot Inspection on Bottom -->
             <div class="absolute bottom-4 left-4 right-4 z-20 space-y-2 pointer-events-none">
               
