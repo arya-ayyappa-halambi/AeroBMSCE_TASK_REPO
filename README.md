@@ -1,126 +1,76 @@
-# AeroBMSCE // Official Aerospace & Aeromodelling Club Web Platform
+# AeroBMSCE Website Revamp — Recruitment Task 2026
 > **B.M.S. College of Engineering (BMSCE), Propel Lab–3, Bengaluru**  
-> **Public GitHub Repository**: [https://github.com/arya-ayyappa-halambi/AeroBMSCE_TASK_REPO](https://github.com/arya-ayyappa-halambi/AeroBMSCE_TASK_REPO)  
-> **Live Deployed Site**: [https://arya-ayyappa-halambi.github.io/AeroBMSCE_TASK_REPO/](https://arya-ayyappa-halambi.github.io/AeroBMSCE_TASK_REPO/)  
-> *Stack: Three.js (Interactive 3D Engine), Lucide SVG Vectors, Tailwind CSS & Bespoke Aerospace Design System.*
+> **GitHub Repository**: [https://github.com/arya-ayyappa-halambi/AeroBMSCE_TASK_REPO](https://github.com/arya-ayyappa-halambi/AeroBMSCE_TASK_REPO)  
+> **Live Website**: [https://arya-ayyappa-halambi.github.io/AeroBMSCE_TASK_REPO/](https://arya-ayyappa-halambi.github.io/AeroBMSCE_TASK_REPO/)  
 
 ---
 
-## 📋 Mandatory Recruitment Task Questions & Architectural Responses
+## 📝 Answers to Recruitment Task Questions
 
-### Question 1: Touch upon the flaws of the original website. What were the most noticeable things that you came across?
+### 1. Touch upon the flaws of the original website. What were the most noticeable things that you came across?
 
-During our forensic audit of the legacy AeroBMSCE repository, we identified several critical structural, design, and functional failures:
+When I first opened and explored the provided codebase, here were the most noticeable issues I found:
 
-1. **Rigid Hardcoded Layout Collapse**:
-   - The legacy `style.css` enforced fixed-width containers: `.wrap { width: 1480px; }` and `.banner { width: 1480px; }`.
-   - On standard laptop displays (1366×768 or 1440×900) as well as mobile devices, this caused catastrophic horizontal overflow, breaking the entire viewport alignment and forcing clumsy horizontal scrolling.
-2. **Severe Contrast & Typographic Accessibility Failures**:
-   - The body copy used low-contrast dark gray text (`#707070`) set in tiny `Times New Roman 13px` over a dark `#141414` background, failing basic WCAG AAA/AA readability standards.
-   - Headings relied on harsh, outdated fonts like `Impact` combined with jarring maroon accent buttons (`#7b2339`), which felt disjointed from an elite collegiate aerospace laboratory.
-3. **Distorted Image Aspect Ratios**:
-   - The original club logo was forced into a stretched `420×200px` container, while the banner was forced into `1480×160px`. This squished the authentic team photos (such as `photo8.jpg`) and distorted the club's Golden Eagle insignia.
-4. **Dead Links and Deprecated Anchor Tags**:
-   - The navigation pointed to a missing `contact.html` file (returning a 404 error), while in-page anchors used obsolete HTML syntax (`<a name="who">`).
-5. **Runtime JavaScript Crash**:
-   - The original `script.js` executed an unchecked `setInterval()` attempting to mutate `document.getElementById("slide").src`. When run on any page or view without `#slide`, it threw unhandled null reference exceptions, halting subsequent scripts.
-6. **Commercial/Corporate Mismatch vs. Authentic Club Heritage**:
-   - The original page structure used generic SaaS marketing tropes that did not reflect the actual accomplishments of BMSCE's premier aeromodelling club, its 16+ year history in Propel Lab–3, or its podium finishes at the SAE International Aero Design series in the USA.
+* **Broken Layout & Horizontal Scrolling**: The CSS had hardcoded fixed widths (`.wrap { width: 1480px; }` and `.banner { width: 1480px; }`). On my laptop screen (and on mobile devices), the page completely broke and forced an annoying horizontal scrollbar. It was not responsive at all.
+* **Hard-to-read Colors and Fonts**: The text was dark gray (`#707070`) set in tiny `Times New Roman 13px` on a dark background, which was really straining to read. The headings used `Impact` with maroon buttons (`#7b2339`), which gave the site an outdated feel rather than looking like an active college aerospace club.
+* **Stretched and Squished Images**: Images like the club logo and the runway banner had hardcoded CSS dimensions (`420x200px` and `1480x160px`). This squished the actual photos of the planes (`photo8.jpg`) and distorted the golden eagle emblem.
+* **Dead Links & Broken Navigation**: The "Contact" button in the menu pointed to a `contact.html` file that did not exist (giving a 404 error), and internal section links used outdated `<a name="who">` tags.
+* **JavaScript Console Error on Load**: In `script.js`, there was a `setInterval()` trying to change the `src` of an element with `id="slide"`. Since that element wasn't on the page, it was throwing a `TypeError: null is not an object` in the browser console right when the page loaded.
+* **Missing Club Identity**: The original site had very little real context about AeroBMSCE's actual heritage—like operating from Propel Lab–3, participating in the SAE Aero Design competition in the USA, or having different dedicated squadrons (heavy-lift, RC planes, FPV drones).
 
 ---
 
-### Question 2: Brief explanation of your design route and any decisions you took on designing the UI/UX.
+### 2. Brief explanation of your design route and any decisions you took on designing the UI/UX.
 
-Our objective was to build a standout, hyper-performant, visually distinctive website tailored specifically to **AeroBMSCE's identity as a collegiate aerospace engineering laboratory**:
+I wanted the revamped website to feel energetic, modern, and genuinely focused on aerospace engineering:
 
-1. **Aesthetic Direction — Luminous Stratospheric & Cockpit Telemetry**:
-   - We avoided generic SaaS dark purple glow grids and clunky graph-paper patterns. Instead, we developed a luminous, modern aerospace visual language:
-   - Clean, high-altitude stratospheric palette: crisp alpine white/slate surfaces (`#F8FAFC`, `#FFFFFF`) accented by deep **Royal Cobalt Blue** (`#0A47FF`), **Aerospace Safety Orange** (`#FF5722`), and **Golden Eagle Amber** (`#F59E0B`).
-   - Smooth, aerodynamic ambient airflow gradients replacing distracting background line grids.
-2. **Typography System — "Outfit" + "Plus Jakarta Sans"**:
-   - **Headings & Display**: Selected **Outfit** for all titles and headlines. Its geometric, aerodynamically proportioned letterforms provide an elite, modern aerospace feel similar to Boom Supersonic and SpaceX design systems.
-   - **Body & Navigation**: Selected **Plus Jakarta Sans** for clean, readable, contemporary typography across all descriptions, cards, and navigation links.
-   - **Telemetry**: Reserved **JetBrains Mono** strictly for genuine numerical flight data, GPS coordinates (`12.9416° N // 77.5658° E`), and raw telemetry readouts.
-3. **Hero Centerpiece — Real 3D Interactive Aircraft Stage (`Three.js`)**:
-   - Designed a dedicated interactive 3D flight stage showcasing the **VAYU-01 Supersonic Delta UAV**.
-   - Built authentic physical details: silver nose pitot-static tube, transparent cockpit canopy with visible internal Pixhawk flight controller cube and HUD glow, reflexed camber delta wings with anti-vortex wingtip fence winglets, actuated elevons with mechanical servo pushrods, and a rapidly spinning carbon-fiber pusher propeller.
-   - **Direct 360° Interaction**: Users can freely click/drag with mouse or touch to rotate the aircraft with momentum damping, and zoom in/out with the mouse wheel.
-   - **In-Stage HUD Inspection Pop-Up**: Touching or clicking component buttons (`1. AVIONICS`, `2. DELTA WING`, `3. PROPULSION`, `4. AIRFRAME`) glides the 3D camera into a close-up focus and pops up an engineering specification card right on the stage without obscuring the rest of the site.
-   - **CAD Wireframe Toggle**: Instant 1-click switch between full carbon composite solid livery and a glowing blueprint wireframe hologram.
-4. **Authentic BMSCE Club Content & Asset Integration**:
-   - Extracted and integrated all real photographic assets (`photo1.jpg` to `photo8.jpg`) into an interactive lightbox gallery.
-   - Organized the club into its true 4 competitive divisions: **Team Yaksha** (SAE Aero Design), **Team Blue Impulse** (Aeromodelling), **Team Flying Phantoms** (Autonomous Drones), and **Team Vectors** (Drone Racing).
-   - Showcased genuine R&D projects (DRDO defense collaboration, GPS-denied navigation, indigenous ESCs) and real collaborator logos (CSIR-NAL, DRDO, SolidWorks, Ansys, Altair, Siemens) with proper contrast filtering.
+* **Theme & Colors**: Instead of a dark generic template or busy graph-paper grid, I went with a clean, bright, stratospheric look. The background is a clean off-white (`#F8FAFC`) with soft atmospheric blue glows. I used Royal Cobalt Blue (`#0A47FF`), Aerospace Safety Orange (`#FF5722`), and Gold (`#F59E0B`) to match the AeroBMSCE golden eagle insignia.
+* **Better Typography**: I replaced Times New Roman with **Outfit** for all headings (it has a clean, geometric, aerodynamic feel) and **Plus Jakarta Sans** for paragraph text and buttons so everything is easy to read. I kept a monospace font (`JetBrains Mono`) only for real technical numbers like GPS coordinates and live pitch/roll telemetry.
+* **Interactive 3D Aircraft in the Hero Section**: Since AeroBMSCE designs and flies UAVs, I used Three.js to build a 3D model of a delta-wing UAV (`VAYU-01`) right in the hero section. I added realistic details like a nose pitot probe, a transparent canopy showing the Pixhawk flight controller inside, delta wings with wingtip winglets, working elevons, and a spinning rear propeller. Visitors can click and drag to rotate it 360°, zoom with the scroll wheel, and toggle between a solid paint scheme and a CAD wireframe.
+* **Touch / Click In-Stage Part Pop-up**: Below the 3D model, I added 4 buttons: **Avionics**, **Delta Wing**, **Propulsion**, and **Airframe**. When clicked or touched, the 3D camera smoothly zooms in to that exact part, and a clean pop-up card appears right inside the stage showing its specs (processor, motor KV, airfoil, carbon fiber layup) with a close button.
+* **Real Photos & Squadrons**: I used the real workshop and flight photos from the club (`photo1.jpg` to `photo8.jpg`) and built a clean lightbox popup when you click on them. I also organized the club into its 4 real divisions: **Team Yaksha** (heavy-lift SAE Aero Design), **Team Blue Impulse** (aeromodelling), **Team Flying Phantoms** (autonomous drones), and **Team Vectors** (FPV drone racing), and showcased real collaborators like DRDO, CSIR-NAL, SolidWorks, and Ansys.
 
 ---
 
-### Question 3: Describe one problem/edge case you faced while building your website. Explain the problem, how you ran into it, and the steps you took to work around it.
+### 3. Describe one problem/edge case you faced while building your website. Explain the problem, how you ran into it, and the steps you took to work around it.
 
-#### The Problem: Temporal Dead Zone (TDZ) ReferenceError Halting WebGL Initialization in Safari
-* **How We Ran Into It**:  
-  When testing the revamped 3D aircraft stage on Safari (macOS), the stage container and HTML UI loaded cleanly, but the Three.js canvas remained completely blank. The live telemetry numbers also stayed frozen at their initial HTML default (`+12.0°`).
-* **Root Cause Forensic Diagnosis**:  
-  To pinpoint the failure, we evaluated the script through the native macOS **JavaScriptCore (`jsc`)** engine (the exact JS engine executing inside Safari). The CLI revealed a fatal unhandled exception on line 87:
+#### The Problem:
+While building and testing the website on Safari on my Mac, I ran into two noticeable problems:
+1. The 3D aircraft stage loaded completely blank and white—the aircraft wasn't rendering at all, and the pitch/roll telemetry text stayed frozen.
+2. In the collaborator section, two partner logo cards (`drkstore` and `uav-marketplace`) showed up as completely blank white boxes.
+
+#### How I Ran Into It & Debugged It:
+* For the 3D stage, I checked if WebGL was supported (it was), but the canvas just remained empty. With the help of AI to inspect the browser runtime, we tested the script using `jsc` (the macOS JavaScriptCore engine) to see the console errors. It immediately caught this error on the very first frame:
   ```
-  Exception: ReferenceError: Cannot access 'clock' before initialization.
-  at animate() (js/three-aircraft.js:87)
+  ReferenceError: Cannot access 'clock' before initialization at animate()
   ```
-  In ES6 JavaScript, variables declared with `let` and `const` are not hoisted and reside in the **Temporal Dead Zone (TDZ)** until their declaration line is evaluated. The animation loop `animate()` was invoked near the top of the IIFE, but `let clock = new THREE.Clock()` and the telemetry DOM variables (`const telemRoll`, `const telemPitch`) were declared lower down in the file. On the very first frame, `clock.getDelta()` threw a TDZ ReferenceError, halting the entire JavaScript thread **before `renderer.render(scene, camera)` could draw even a single frame**. Additionally, `new ResizeObserver` was called without explicit `window.` qualification, which raised an auxiliary reference error in strict mode.
-* **The Architectural Workaround & Step-by-Step Resolution**:
-  1. **Hoisting & Scope Reorganization**: Moved `clock = new THREE.Clock()`, `telemRoll = null`, and `telemPitch = null` to the top of the closure scope, ensuring all dependencies are fully initialized before `animate()` is triggered.
-  2. **Safe Window Observer Binding**: Guarded the container resize logic with `if (typeof window !== 'undefined' && window.ResizeObserver)` and safely instantiated `new window.ResizeObserver()` inside a `try/catch` block.
-  3. **Viewport Scale & Camera Distance Tuning**: The initial aircraft geometry was also too large for the stage container, causing the wingtips to clip. We scaled the aircraft group to `0.85x` and set `camera.position.z = 7.2`, ensuring the entire aircraft—from nose pitot probe to wingtip winglets—fits comfortably inside the viewport with aerodynamic breathing room.
-  4. **Verification via `jsc`**: Validated the execution in `jsc`, confirming that multi-frame rendering and camera lerping execute with zero runtime exceptions.
+* In modern JavaScript, `let` and `const` variables are not hoisted (Temporal Dead Zone). The `animate()` loop was being started near the top of the script, but `let clock = new THREE.Clock()` and the telemetry elements were declared further down. Because `animate()` ran first, `clock.getDelta()` threw a ReferenceError immediately, which crashed the script before `renderer.render()` could even draw the first frame!
+* For the partner logos, I checked the PNG files directly and noticed that `drkstore.png` and `uav-marketplace.png` had pure white graphics on transparent backgrounds. When placed on white card boxes (`#FFFFFF`), white-on-white made them completely invisible.
+
+#### Steps Taken to Fix:
+1. **Fixed the Variable Hoisting**: I moved `let clock = new THREE.Clock()`, `telemRoll`, and `telemPitch` to the top of the file so they are already initialized when `animate()` starts. I also safely wrapped `window.ResizeObserver` in a check so it wouldn't throw errors in strict environments.
+2. **Fixed 3D Model Scale & Framing**: When it first rendered, the plane was too zoomed in and the wingtips were clipped off. I scaled the aircraft to `0.85` and set the camera distance to `z = 7.2` so the entire plane fits nicely inside the container with breathing room.
+3. **Fixed the Invisible White Logos**: In `index.html`, I added CSS `filter: invert(1)` to `drkstore.png` and `uav-marketplace.png`. This cleanly inverted the white text and drone emblem into crisp, dark charcoal logos, making them clearly visible on the white cards alongside SolidWorks and Siemens.
 
 ---
 
-## 🚀 4. Local Setup & GitHub Pages Deployment
+## 🛠️ Tech Stack Used
+* **HTML5 / CSS3 / Vanilla JavaScript**
+* **Tailwind CSS** (via CDN for responsive layout)
+* **Three.js** (for the 3D rotatable aircraft visualizer)
+* **Lucide Icons** (clean SVG vector icons)
+* **Google Fonts** (Outfit, Plus Jakarta Sans, JetBrains Mono)
+* **GitHub Pages & GitHub Actions** (for static hosting and CI/CD)
 
-### Local Development Preview
+---
+
+## 💻 Running Locally
 ```bash
 # Clone the repository
 git clone https://github.com/arya-ayyappa-halambi/AeroBMSCE_TASK_REPO.git
 cd AeroBMSCE_TASK_REPO
 
-# Launch a local HTTP server
+# Start local preview server
 python3 -m http.server 8080
 ```
-Open **`http://localhost:8080/`** in your browser.
-
-### Automatic GitHub Pages Deployment
-This repository is configured with automated continuous deployment:
-1. Every commit pushed to `main` automatically triggers the GitHub Actions workflow defined in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
-2. The workflow verifies assets, sets up GitHub Pages, and deploys the static files to:  
-   **[https://arya-ayyappa-halambi.github.io/AeroBMSCE_TASK_REPO/](https://arya-ayyappa-halambi.github.io/AeroBMSCE_TASK_REPO/)**
-
----
-
-## 📁 5. Directory Structure & Asset Inventory
-
-```
-AeroBMSCE_TASK_REPO/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml             # Automated GitHub Actions Pages deployment
-├── css/
-│   └── styles.css                 # Custom aerospace design system & styles
-├── images/
-│   ├── logo.png                   # Official AeroBMSCE Golden Eagle Insignia
-│   ├── header-logo.png            # Wide banner logo with club motto
-│   ├── photo1.jpg - photo8.jpg    # Authentic workshop, airfield, and competition photos
-│   ├── drdo.png, csir-nal.png     # Research and defense collaborator logos
-│   └── solidworks.png, ansys.png,
-│       altair.png, siemens.png,
-│       flow5.png, simscale.png,
-│       drkstore.png,
-│       uav-marketplace.png        # Software and hardware ecosystem partner logos
-├── js/
-│   ├── vendor/
-│   │   ├── three.min.js           # Local Three.js r128 engine (offline resilient)
-│   │   └── lucide.min.js          # Local Lucide vector icon suite
-│   ├── three-aircraft.js          # Interactive 3D aircraft engine & in-stage HUD pop-up
-│   ├── main.js                    # Lightbox gallery, milestone filters, contact dispatch
-│   └── wind-tunnel.js             # Aerodynamic airflow stream simulation
-├── index.html                     # Primary single-page application entry point
-└── README.md                      # Recruitment task responses & documentation
-```
+Then visit `http://localhost:8080` in your browser.
