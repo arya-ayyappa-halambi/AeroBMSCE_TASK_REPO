@@ -323,3 +323,287 @@ body {
 #part-detail-modal .modal-window {
   max-width: 580px;
 }
+
+/* ==========================================================================
+   DYNAMIC FLIGHT-THEMED CUSTOM CURSOR
+   ========================================================================== */
+#flight-cursor-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Hide native cursor on desktop when flight cursor is active */
+body.has-flight-cursor,
+body.has-flight-cursor a,
+body.has-flight-cursor button,
+body.has-flight-cursor input,
+body.has-flight-cursor select,
+body.has-flight-cursor textarea,
+body.has-flight-cursor .hotspot-quick-btn,
+body.has-flight-cursor [role="button"] {
+  cursor: none !important;
+}
+
+/* Aircraft Container */
+#flight-cursor-aircraft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  margin-top: -17px;
+  margin-left: -17px;
+  pointer-events: none;
+  will-change: transform;
+  transform-origin: center center;
+}
+
+.flight-jet-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 2px 8px rgba(10, 71, 255, 0.4));
+  transition: filter 0.2s ease;
+}
+
+/* Afterburner Flame at Aircraft Tail */
+#flight-cursor-afterburner {
+  position: absolute;
+  top: 27px;
+  left: 17px;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 22px;
+  pointer-events: none;
+  transform-origin: top center;
+  transition: opacity 0.1s linear;
+}
+
+.afterburner-core {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 16px;
+  background: linear-gradient(to bottom, #FFFFFF 0%, #38BDF8 40%, #0A47FF 70%, transparent 100%);
+  border-radius: 50%;
+  filter: blur(1px);
+}
+
+.afterburner-plume {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 24px;
+  background: radial-gradient(ellipse at top, rgba(255, 87, 34, 0.9) 0%, rgba(245, 158, 11, 0.6) 40%, transparent 80%);
+  border-radius: 50%;
+  filter: blur(3px);
+}
+
+/* HUD Lock-On Targeting Reticle */
+#flight-cursor-reticle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  margin-left: -24px;
+  color: var(--cobalt-blue);
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: center center;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+#flight-cursor-root.is-locked-on #flight-cursor-reticle {
+  opacity: 0.95;
+  color: var(--aero-orange);
+  animation: reticleSpin 5s linear infinite;
+}
+
+#flight-cursor-root.is-locked-on .flight-jet-svg {
+  filter: drop-shadow(0 0 12px rgba(255, 87, 34, 0.8));
+}
+
+#flight-cursor-root.is-firing .flight-jet-svg {
+  filter: drop-shadow(0 0 18px rgba(0, 180, 216, 1));
+}
+
+@keyframes reticleSpin {
+  from { transform: translate3d(var(--x, 0), var(--y, 0), 0) rotate(0deg); }
+  to { transform: translate3d(var(--x, 0), var(--y, 0), 0) rotate(360deg); }
+}
+
+/* Contrail Vapor Trail Particles */
+#flight-trail-pool .trail-node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.85) 0%, rgba(10, 71, 255, 0.3) 60%, transparent 100%);
+  pointer-events: none;
+  will-change: transform, opacity;
+  display: none;
+}
+
+/* Mobile & Touch Fallback: Disable custom cursor seamlessly */
+@media (hover: none) or (pointer: coarse) {
+  body.has-flight-cursor,
+  body.has-flight-cursor a,
+  body.has-flight-cursor button,
+  body.has-flight-cursor input,
+  body.has-flight-cursor select,
+  body.has-flight-cursor textarea {
+    cursor: auto !important;
+  }
+  #flight-cursor-root {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   SCROLL-REACTIVE GLOWING FIGHTER AIRCRAFT BACKGROUND
+   ========================================================================== */
+#background-fighter-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ambient Horizon Flare */
+#bg-horizon-flare {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 250px;
+  background: radial-gradient(ellipse at 50% 100%, rgba(10, 71, 255, 0.08) 0%, rgba(56, 189, 248, 0.03) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Fighter Parallax Stage */
+#bg-fighter-stage {
+  width: 100%;
+  max-width: 860px;
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  opacity: 0.88;
+  transition: opacity 0.3s ease;
+}
+
+#bg-fighter-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Wingtip Navigation Strobes */
+.strobe-port {
+  animation: navStrobeFlash 1.6s infinite ease-out;
+}
+.strobe-starboard {
+  animation: navStrobeFlash 1.6s infinite ease-out 0.8s;
+}
+
+@keyframes navStrobeFlash {
+  0%, 88% {
+    opacity: 0.3;
+    r: 3.5;
+  }
+  90%, 94% {
+    opacity: 1;
+    r: 5.5;
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+  100% {
+    opacity: 0.3;
+    r: 3.5;
+  }
+}
+
+/* Cockpit Laser Scan Bar Animation */
+#bg-radar-sweep-bar {
+  filter: drop-shadow(0 0 8px #38BDF8);
+}
+
+/* Live Flight Telemetry Readouts */
+#bg-hud-telemetry {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  box-shadow: 0 4px 20px rgba(10, 71, 255, 0.08);
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.hud-label {
+  color: var(--text-subtle);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.hud-value {
+  color: var(--cobalt-blue);
+  font-weight: 700;
+}
+
+.hud-meter-bar {
+  width: 50px;
+  height: 4px;
+  background: #E2E8F0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.hud-meter-progress {
+  height: 100%;
+  width: 25%;
+  background: linear-gradient(to right, var(--cobalt-blue), var(--aero-orange));
+  border-radius: 2px;
+  transition: width 0.15s ease-out;
+}
+
+/* Ensure Page Sections Render Above the Background Fighter Jet */
+main, section, header, footer, #aircraft-stage {
+  position: relative;
+  z-index: 10;
+}
