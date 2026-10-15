@@ -67,6 +67,10 @@ body {
   box-shadow: 0 20px 45px -10px rgba(10, 71, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
+#hero-three-canvas-container {
+  contain: strict;
+}
+
 #hero-three-canvas-container canvas {
   width: 100% !important;
   height: 100% !important;
@@ -498,7 +502,7 @@ body.has-flight-cursor [role="button"] {
   pointer-events: none;
 }
 
-/* Fighter Parallax Stage */
+/* Fighter Parallax Stage (Hardware GPU-Accelerated) */
 #bg-fighter-stage {
   width: 100%;
   max-width: 860px;
@@ -508,8 +512,11 @@ body.has-flight-cursor [role="button"] {
   justify-content: center;
   transform-style: preserve-3d;
   will-change: transform;
+  backface-visibility: hidden;
   opacity: 0.88;
+  filter: drop-shadow(0 0 16px rgba(10, 71, 255, 0.22));
   transition: opacity 0.3s ease;
+  contain: layout paint;
 }
 
 #bg-fighter-svg {
@@ -534,7 +541,6 @@ body.has-flight-cursor [role="button"] {
   90%, 94% {
     opacity: 1;
     r: 5.5;
-    filter: drop-shadow(0 0 6px currentColor);
   }
   100% {
     opacity: 0.3;
@@ -542,9 +548,24 @@ body.has-flight-cursor [role="button"] {
   }
 }
 
-/* Cockpit Laser Scan Bar Animation */
-#bg-radar-sweep-bar {
-  filter: drop-shadow(0 0 8px #38BDF8);
+/* Pure CSS Hardware-Accelerated Radar Laser Scan */
+.radar-sweep-anim {
+  animation: radarLaserSweep 4.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes radarLaserSweep {
+  0% {
+    transform: translateY(-60px);
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateY(360px);
+    opacity: 0.25;
+  }
 }
 
 /* Live Flight Telemetry Readouts */

@@ -47,6 +47,7 @@
   let propellerGroup;
   let navLightRed, navLightGreen, strobeWhite;
   let isWireframeActive = false;
+  let isCanvasVisible = true;
 
   // Clock & Telemetry Globals
   let clock = new THREE.Clock();
@@ -142,7 +143,7 @@
       alpha: true,
       powerPreference: 'high-performance'
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
@@ -606,6 +607,21 @@
       } catch (e) {}
     }
 
+    // High Performance: Pause Three.js render engine when scrolled off-screen
+    if (typeof window !== 'undefined' && window.IntersectionObserver && container) {
+      try {
+        const io = new window.IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            isCanvasVisible = entry.isIntersecting;
+            if (isCanvasVisible) {
+              clock.getDelta(); // reset delta so no huge time jump
+            }
+          });
+        }, { threshold: 0.05 });
+        io.observe(container);
+      } catch (e) {}
+    }
+
     // CAD Wireframe Toggle Button
     const wireframeBtn = document.getElementById('btn-toggle-wireframe');
     const wireframeText = document.getElementById('wireframe-btn-text');
@@ -653,6 +669,8 @@
   // Animation Loop
   function animate() {
     requestAnimationFrame(animate);
+
+    if (!isCanvasVisible) return;
 
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
